@@ -61,9 +61,59 @@ function* retrieveOwner(action) {
 }
 
 
+
+function* deleteOwner(action){
+  const { id } = action.payload;
+  try{
+    const isAuth = yield select(selectors.isAuthenticated);
+    
+    if(isAuth){
+
+      const token = yield select(selectors.getAuthToken);
+      const response = yield call(
+        fetch,
+        `${API_BASE_URL}/owner/${id}`,
+        {
+          method: 'DELETE',
+          body: JSON.stringify({}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `JWT ${token}`,
+          },
+        }
+      ); 
+      if(response.status === 204){
+        yield put(actions.completeRemovingPetOwner());
+      } 
+      else {
+        console.log("Error en la respuesta");
+      } 
+
+    } else {
+      console.log("Error en la autenticacion");
+    }
+
+  } catch(error) {
+    yield put(actions.failRemovingPetOwner(id, error));
+  }
+
+}
+
+
+
+
 export function* watchRetrieveOwners() {
   yield takeEvery(
     types.PET_OWNERS_FETCH_STARTED,
     retrieveOwner,
   );
 }
+
+
+export function* watchDeleteOwners() {
+  yield takeEvery(
+    types.PET_OWNER_REMOVE_STARTED,
+    deleteOwner,
+  );
+}
+

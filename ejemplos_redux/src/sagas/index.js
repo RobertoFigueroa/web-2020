@@ -3,6 +3,7 @@ import { fork, all } from 'redux-saga/effects';
 import { watchLoginStarted } from './auth';
 import { watchRetrieveOwners } from './petOwners';
 import { watchDeleteOwners } from './petOwners';
+import { watchAddOwners } from './petOwners';
 
 
 
@@ -11,6 +12,7 @@ function* mainSaga() {
     fork(watchLoginStarted),
     fork(watchRetrieveOwners),
     fork(watchDeleteOwners),
+    fork(watchAddOwners),
 
   ]);
 }

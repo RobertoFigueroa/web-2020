@@ -101,6 +101,46 @@ function* deleteOwner(action){
 
 
 
+function* addOwner(action) {
+  const {oldId, owner } = action.payload;
+  try {
+    const isAuth = yield select(selectors.isAuthenticated);
+
+    if(isAuth) {
+
+      const token = yield select(selectors.getAuthToken);
+     
+
+      const response = yield call(
+        fetch,
+        `${API_BASE_URL}/owner/`,
+        {
+          method: 'POST',
+          body: JSON.stringify({name: owner}),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `JWT ${token}`,
+          },
+        }
+      ); 
+      if(response.status === 200){
+         const {id, name} = yield response.json();
+
+        yield put(actions.completeAddingPetOwner(oldId, {id, name}));
+      } 
+      else {
+        console.log("Error en la respuesta");
+      }
+    }
+    else {
+      console.log('Error de autenticación');
+    }
+  } catch(error) {
+    yield put(actions.failAddingPetOwner(oldId, error));
+  }
+}
+
+
 
 export function* watchRetrieveOwners() {
   yield takeEvery(
@@ -117,3 +157,9 @@ export function* watchDeleteOwners() {
   );
 }
 
+export function* watchAddOwners() {
+  yield takeEvery(
+    types.PET_OWNER_ADD_STARTED,
+    addOwner,
+  );
+}
